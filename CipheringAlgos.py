@@ -2,8 +2,8 @@ import numpy as np
 import sys
 import string
 import ast
-p = ""
-c = ""
+plainText = ""
+operation_code= ""
 jmode = False
 al = list(string.ascii_lowercase)
 one = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -45,7 +45,7 @@ def jmodeAssign(se, y):
 def getOpMatChr(s, line, c):
     r = np.where(s == line[0])
     r1 = np.where(s == line[1])
-    if c == "enc":
+    if operation_code== "enc":
         a = -1
     else:
         a = +1
@@ -102,7 +102,7 @@ def getOpMatChr(s, line, c):
     return row, col, row1, col1, r, r1
 
 
-def getProcessedString(p, lp):
+def getProcessedString(plainText, lp):
     o = 0
     l = 1
     pp = []
@@ -120,7 +120,7 @@ def getProcessedString(p, lp):
             o += 2
             l += 2
         if o == lp-1 and l >= lp:
-            pp.append(p[lp-1])
+            pp.append(plainText[lp-1])
             pp.append('x')
             break
         #print(o,l)
@@ -165,73 +165,71 @@ def getInverseMatrix(a):
 
 
 def AdditiveCipher():
-    y = []
-    lp = len(p)
-    for i in range(lp):
-        if c == 'enc':
-            m = ((ord(p[i])-97)+int(k)) % 26
-        elif c == 'dec':
-            m = ((ord(p[i])-97)-int(k)) % 26
+    output = []
+    plainText_length = len(plainText)
+    for character_index in range(plainText_length):
+        if operation_code == 'enc':
+            character_code = ((ord(plainText[character_index])-97)+int(k)) % 26
+        elif operation_code == 'dec':
+            character_code = ((ord(plainText[character_index])-97)-int(k)) % 26
         else:
             return "Wrong operation code (only 'enc' or 'dec')."
-        y.append(chr(m+97))
-    m = ''.join(y)
-    if c == 'enc':
-        return "Original Text: "+p+"\nEncoded  Text: "+m
-    else:
-        return "Original Text: "+p+"\nDecoded  Text: "+m
+        output.append(chr(character_code+97))
+
+    return f"Original Text: {plainText}\n{operation_code.title()}oded  Text: {''.join(output)}"
+   
 
 
 def MultiplicativeCipher():
     y = []
-    lp = len(p)
+    lp = len(plainText)
     k1 = getMultiplicativeInverse(int(k))
     if type(k1) != str:
         for i in range(lp):
-            if c == 'enc':
-                m = ((ord(p[i])-97)*int(k)) % 26
-            elif c == 'dec':
-                m = ((ord(p[i])-97)*k1) % 26
+            if operation_code == 'enc':
+                m = ((ord(plainText[i])-97)*int(k)) % 26
+            elif operation_code == 'dec':
+                m = ((ord(plainText[i])-97)*k1) % 26
             else:
                 return "Wrong operation code (only 'enc' or 'dec')."
             y.append(chr(m+97))
     else:
         return k1
     m = ''.join(y)
-    if c == 'enc':
-        return "Original Text: "+p+"\nEncoded  Text: "+m
+    if operation_code == 'enc':
+        return "Original Text: "+plainText+"\nEncoded  Text: "+m
     else:
-        return "Original Text: "+p+"\nDecoded  Text: "+m
+        return "Original Text: "+plainText+"\nDecoded  Text: "+m
 
 
 def AffineCipher():
     y = []
-    lp = len(p)
+    lp = len(plainText)
     k11 = getMultiplicativeInverse(int(k))
     if type(k11) != str:
         for i in range(lp):
-            if c == 'enc':
-                m = ((ord(p[i])-97)*int(k)+int(k1)) % 26
-            elif c == 'dec':
-                m = (((ord(p[i])-97)-int(k1))*k11) % 26
+            if operation_code == 'enc':
+                m = ((ord(plainText[i])-97)*int(k)+int(k1)) % 26
+            elif operation_code == 'dec':
+                m = (((ord(plainText[i])-97)-int(k1))*k11) % 26
             else:
                 return "Wrong operation code (only 'enc' or 'dec')."
             y.append(chr(m+97))
     else:
         return k11
     m = ''.join(y)
-    if c == 'enc':
-        return "Original Text: "+p+"\nEncoded  Text: "+m
+    if operation_code == 'enc':
+        return "Original Text: "+plainText+"\nEncoded  Text: "+m
     else:
-        return "Original Text: "+p+"\nDecoded  Text: "+m
+        return "Original Text: "+plainText+"\nDecoded  Text: "+m
 
 
 def VigenereCipher():
     s = []
     lk = len(k)
-    lp = len(p)
+    lp = len(plainText)
     '''if lk<lp:
-        while len(s)<len(p): 
+        while len(s)<len(plainText): 
             for i in range(lk):
                 s.append(k[i])
         y=''.join(s)
@@ -243,63 +241,63 @@ def VigenereCipher():
             t=((ord(p[i])-97)+(ord(y[i])-97)) % 26
             elif c=="dec":
             t=((ord(p[i])-97)-(ord(y[i])-97)) % 26'''
-        if c == "enc":
-            t = ((ord(p[i])-97)+(ord(k[i % lk])-97)) % 26
-        elif c == "dec":
-            t = ((ord(p[i])-97)-(ord(k[i % lk])-97)) % 26
+        if operation_code == "enc":
+            t = ((ord(plainText[i])-97)+(ord(k[i % lk])-97)) % 26
+        elif operation_code == "dec":
+            t = ((ord(plainText[i])-97)-(ord(k[i % lk])-97)) % 26
         else:
             return "Wrong operation code (only 'enc' or 'dec')."
         s.append(chr(t+97))
     r = ''.join(s)
-    if c == "dec":
-        return "Original Text: "+p+"\nDecoded  Text: "+r
+    if operation_code == "dec":
+        return "Original Text: "+plainText+"\nDecoded  Text: "+r
     else:
-        return "Original Text: "+p+"\nEncoded  Text: "+r
+        return "Original Text: "+plainText+"\nEncoded  Text: "+r
 
 
 def AutoKeyCipher():
     s = []
     lk = len(k)
-    lp = len(p)
+    lp = len(plainText)
     ll = lp-lk
-    if c == "enc":
+    if operation_code == "enc":
         if lk < lp:
             for i in range(lk):
                 s.append(k[i])
             for i in range(ll):
-                s.append(p[i])
+                s.append(plainText[i])
             y = ''.join(s)
         else:
             y = k
         s.clear()
         for i in range(lp):
-            t = ((ord(p[i])-97)+(ord(y[i])-97)) % 26
+            t = ((ord(plainText[i])-97)+(ord(y[i])-97)) % 26
             s.append(chr(t+97))
         r = ''.join(s)
-        return "Original Text: "+p+"\nEncoded  Text: "+r
-    elif c == "dec":
+        return "Original Text: "+plainText+"\nEncoded  Text: "+r
+    elif operation_code == "dec":
         if lk < lp:
             y = k
             for i in range(lk):
-                t = ((ord(p[i])-97)-(ord(y[i])-97)) % 26
+                t = ((ord(plainText[i])-97)-(ord(y[i])-97)) % 26
                 s.append(chr(t+97))
             for i in range(lk, lp):
-                t = ((ord(p[i])-97)-(ord(s[i-lk])-97)) % 26
+                t = ((ord(plainText[i])-97)-(ord(s[i-lk])-97)) % 26
                 s.append(chr(t+97))
         else:
             y = k
             for i in range(lp):
-                t = ((ord(p[i])-97)-(ord(y[i])-97)) % 26
+                t = ((ord(plainText[i])-97)-(ord(y[i])-97)) % 26
                 s.append(chr(t+97))
         r = ''.join(s)
-        return "Original Text: "+p+"\nDecoded  Text: "+r
+        return "Original Text: "+plainText+"\nDecoded  Text: "+r
     else:
         return "Wrong operation code (only 'enc' or 'dec')."
 
 
 '''def HillCipher():
     o=0 
-    lp=len(p)
+    lp=len(plainText)
     lj=lp//2
     s=([0,0],[0,0])
     n=([0,0],[0,0],[0,0],[0,0])
@@ -317,8 +315,8 @@ def AutoKeyCipher():
         #print(str(lp)+" "+str(lj))
         for i in range(lj):
             for j in range(2):
-                n[i][j]=ord(p[o])-97
-                #print(p[o])
+                n[i][j]=ord(plainText[o])-97
+                #print(plainText[o])
                 if  o!=lp-1:
                     o+=1
         #for i in range(lj):
@@ -331,16 +329,16 @@ def AutoKeyCipher():
             for j in range(2):
                 r.append(chr(t[i][j]%26+97))
         m=''.join(r)
-        return "Original Text: "+p+"\nEncoded  Text: "+'''
+        return "Original Text: "+plainText+"\nEncoded  Text: "+'''
 
 
 def HC():
     o = 0
-    lp = len(p)
+    lp = len(plainText)
     if lp % 2 == 0:
-        lp2 = len(p)//2
+        lp2 = len(plainText)//2
     else:
-        lp2 = len(p)//2+1
+        lp2 = len(plainText)//2+1
     lk = len(k)
     s = np.zeros((2, 2), dtype=np.int32)
     n = np.zeros((lp2, 2), dtype=np.int32)
@@ -353,15 +351,15 @@ def HC():
     for i in range(lp2):
         for j in range(2):
             if o <= lp-1:
-                n[i][j] = ord(p[o])-97
+                n[i][j] = ord(plainText[o])-97
                 o += 1
             elif lp % 2 != 0:
                 n[i][j] = ord('z')-97
             else:
                 pass
-    if c == "enc":
+    if operation_code == "enc":
         t = np.dot(n, s)
-    elif c == "dec":
+    elif operation_code == "dec":
         s = getInverseMatrix(s)
         t = np.dot(n, s)
     else:
@@ -371,22 +369,22 @@ def HC():
         for j in range(2):
             r.append(chr(t[i][j] % 26+97))
     m = ''.join(r)
-    if c == "enc":
-        return "Original Text: "+p+"\nEncoded  Text: "+m
-    elif c == "dec":
-        return "Original Text: "+p+"\nDecoded  Text: "+m
+    if operation_code == "enc":
+        return "Original Text: "+plainText+"\nEncoded  Text: "+m
+    elif operation_code == "dec":
+        return "Original Text: "+plainText+"\nDecoded  Text: "+m
 
 
 def PlayfairCipher():
     #set up the variables and lists
-    lp = len(p)
+    lp = len(plainText)
     l = []
     o = 0
     oo = 0
     #process string to add 'x' between each two repeated characters
     #and add 'x' at the end -if needed- to satisfy (length of prcoessed string)%2==0
     #initialize the matrices with the proper shape
-    pp = getProcessedString(p, lp)
+    pp = getProcessedString(plainText, lp)
     lpp = len(pp)
     lppl = lpp//2
     s = np.zeros((5, 5), dtype=np.int32)
@@ -419,7 +417,7 @@ def PlayfairCipher():
                 oo += 1
     print(s)
     o = 0
-    if c == "enc":
+    if operation_code == "enc":
         #filling up the matrix n with the characters from the processed string
         #a couple at a time, row wise
         for i in range(lppl):
@@ -439,8 +437,8 @@ def PlayfairCipher():
             cc.append(chr(s[int(row1)][int(col1)]+97))
             #print(cc[0],cc[1])
         jj = ''.join(cc)
-        return "Original Text: "+p+"\nEncoded  Text: "+jj
-    elif c == "dec":
+        return "Original Text: "+plainText+"\nEncoded  Text: "+jj
+    elif operation_code == "dec":
         #filling up the matrix n with the encoded string, row wise
         for i in range(lppl):
             for j in range(2):
@@ -461,7 +459,7 @@ def PlayfairCipher():
             cc.append(chr(s[int(row1)][int(col1)]+97))
             #print(cc[0],cc[1])
         jj = ''.join(cc)
-        return "Original Text: "+p+"\nDecoded  Text: "+jj
+        return "Original Text: "+plainText+"\nDecoded  Text: "+jj
     else:
         return "Wrong operation code (only 'enc' or 'dec')."
 
@@ -469,7 +467,7 @@ def PlayfairCipher():
 def ADFGVXCipher():
     #setting up variables, sets, lists and matrices
     AX = ['A', 'D', 'F', 'G', 'V', 'X']
-    lp = len(p)
+    lp = len(plainText)
     l = []
     o = 0
     oo = 0
@@ -510,7 +508,7 @@ def ADFGVXCipher():
                 s[i][j] = one[olo]
                 olo += 1
     print(s)
-    if c == "enc":
+    if operation_code == "enc":
         cc = []
         #getting the tw v c"o character code for each character in the original text
         for i in range(lp):
@@ -559,14 +557,14 @@ def ADFGVXCipher():
                 except:
                     return "Second keyword has duplicate characters, choose one with no duplicate characters (e.x: corn)"
         jj = ''.join(scc)
-        return "Original Text: "+p+"\nEncoded  Text: "+jj
-    elif c == "dec":
+        return "Original Text: "+plainText+"\nEncoded  Text: "+jj
+    elif operation_code == "dec":
         cc = []
         #inserting all of the encdod text characters into a list
         for i in range(lp):
             #q=np.where(s==p[i])
             #print(q[0],q[1])
-            cc.append(p[i])
+            cc.append(plainText[i])
         #sort the second key characters alphabetically
         lk1 = len(k1)
         sk1 = []
@@ -632,7 +630,7 @@ def ADFGVXCipher():
             #print(a,d)
             cc.append(s[a][d])
         jj = ''.join(cc)
-        return "Original Text: "+p+"\nDecoded  Text: "+jj
+        return "Original Text: "+plainText+"\nDecoded  Text: "+jj
     else:
         return "Wrong operation code (only 'enc' or 'dec')."
 
@@ -661,9 +659,9 @@ def navigator():
 
 if __name__ == "__main__":
     al = list(string.ascii_lowercase)
-    p = sys.argv[1]
+    plainText = sys.argv[1]
     n = sys.argv[2]
-    c = sys.argv[3]
+    operation_code = sys.argv[3]
     if int(n) != 6:
         k = sys.argv[4]
     else:
