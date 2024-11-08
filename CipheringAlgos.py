@@ -181,53 +181,48 @@ def AdditiveCipher():
 
 
 def MultiplicativeCipher():
-    y = []
-    lp = len(plainText)
+    output = []
+    plainText_length = len(plainText)
     k1 = getMultiplicativeInverse(int(k))
     if type(k1) != str:
-        for i in range(lp):
+        for character_index in range(plainText_length):
             if operation_code == 'enc':
-                m = ((ord(plainText[i])-97)*int(k)) % 26
+                character_code = ((ord(plainText[character_index])-97)*int(k)) % 26
             elif operation_code == 'dec':
-                m = ((ord(plainText[i])-97)*k1) % 26
+                character_code = ((ord(plainText[character_index])-97)*k1) % 26
             else:
                 return "Wrong operation code (only 'enc' or 'dec')."
-            y.append(chr(m+97))
+            output.append(chr(character_code+97))
     else:
         return k1
-    m = ''.join(y)
-    if operation_code == 'enc':
-        return "Original Text: "+plainText+"\nEncoded  Text: "+m
-    else:
-        return "Original Text: "+plainText+"\nDecoded  Text: "+m
+    
+    return f"Original Text: {plainText}\n{operation_code.title()}oded  Text: {''.join(output)}"
+
 
 
 def AffineCipher():
-    y = []
-    lp = len(plainText)
+    output = []
+    plainText_length = len(plainText)
     k11 = getMultiplicativeInverse(int(k))
     if type(k11) != str:
-        for i in range(lp):
+        for character_index in range(plainText_length):
             if operation_code == 'enc':
-                m = ((ord(plainText[i])-97)*int(k)+int(k1)) % 26
+                character_code = ((ord(plainText[character_index])-97)*int(k)+int(k1)) % 26
             elif operation_code == 'dec':
-                m = (((ord(plainText[i])-97)-int(k1))*k11) % 26
+                character_code = (((ord(plainText[character_index])-97)-int(k1))*k11) % 26
             else:
                 return "Wrong operation code (only 'enc' or 'dec')."
-            y.append(chr(m+97))
+            output.append(chr(character_code+97))
     else:
         return k11
-    m = ''.join(y)
-    if operation_code == 'enc':
-        return "Original Text: "+plainText+"\nEncoded  Text: "+m
-    else:
-        return "Original Text: "+plainText+"\nDecoded  Text: "+m
+    
+    return f"Original Text: {plainText}\n{operation_code.title()}oded  Text: {''.join(output)}"
 
 
 def VigenereCipher():
-    s = []
-    lk = len(k)
-    lp = len(plainText)
+    output = []
+    plainText_length = len(plainText)
+    key_length = len(k)
     '''if lk<lp:
         while len(s)<len(plainText): 
             for i in range(lk):
@@ -236,63 +231,60 @@ def VigenereCipher():
     else:
         y=k   
     s.clear()'''
-    for i in range(lp):
-        '''if c=="enc":
-            t=((ord(p[i])-97)+(ord(y[i])-97)) % 26
-            elif c=="dec":
-            t=((ord(p[i])-97)-(ord(y[i])-97)) % 26'''
+    for character_index in range(plainText_length):
         if operation_code == "enc":
-            t = ((ord(plainText[i])-97)+(ord(k[i % lk])-97)) % 26
+            character_code = ((ord(plainText[character_index])-97)+
+                              (ord(k[character_index % key_length])-97)) % 26
         elif operation_code == "dec":
-            t = ((ord(plainText[i])-97)-(ord(k[i % lk])-97)) % 26
+            character_code = ((ord(plainText[character_index])-97)-
+                              (ord(k[character_index % key_length])-97)) % 26
         else:
             return "Wrong operation code (only 'enc' or 'dec')."
-        s.append(chr(t+97))
-    r = ''.join(s)
-    if operation_code == "dec":
-        return "Original Text: "+plainText+"\nDecoded  Text: "+r
-    else:
-        return "Original Text: "+plainText+"\nEncoded  Text: "+r
+        output.append(chr(character_code+97))
+
+    return f"Original Text: {plainText}\n{operation_code.title()}oded  Text: {''.join(output)}"
 
 
 def AutoKeyCipher():
-    s = []
-    lk = len(k)
-    lp = len(plainText)
-    ll = lp-lk
+    output = []
+    plainText_length = len(plainText)
+    key_length = len(k)
+    plainTextKey_length_difference = plainText_length-key_length
+
     if operation_code == "enc":
-        if lk < lp:
-            for i in range(lk):
-                s.append(k[i])
-            for i in range(ll):
-                s.append(plainText[i])
-            y = ''.join(s)
+        if key_length < plainText_length:
+            for i in range(key_length):
+                output.append(k[i])
+            for i in range(plainTextKey_length_difference):
+                output.append(plainText[i])
+            y = ''.join(output)
         else:
             y = k
-        s.clear()
-        for i in range(lp):
+        output.clear()
+        for i in range(plainText_length):
             t = ((ord(plainText[i])-97)+(ord(y[i])-97)) % 26
-            s.append(chr(t+97))
-        r = ''.join(s)
-        return "Original Text: "+plainText+"\nEncoded  Text: "+r
+            output.append(chr(t+97))
+    
+
     elif operation_code == "dec":
-        if lk < lp:
+        if key_length < plainText_length:
             y = k
-            for i in range(lk):
+            for i in range(key_length):
                 t = ((ord(plainText[i])-97)-(ord(y[i])-97)) % 26
-                s.append(chr(t+97))
-            for i in range(lk, lp):
-                t = ((ord(plainText[i])-97)-(ord(s[i-lk])-97)) % 26
-                s.append(chr(t+97))
+                output.append(chr(t+97))
+            for i in range(key_length, plainText_length):
+                t = ((ord(plainText[i])-97)-(ord(output[i-key_length])-97)) % 26
+                output.append(chr(t+97))
         else:
             y = k
-            for i in range(lp):
+            for i in range(plainText_length):
                 t = ((ord(plainText[i])-97)-(ord(y[i])-97)) % 26
-                s.append(chr(t+97))
-        r = ''.join(s)
-        return "Original Text: "+plainText+"\nDecoded  Text: "+r
+                output.append(chr(t+97))
+                
     else:
         return "Wrong operation code (only 'enc' or 'dec')."
+    
+    return f"Original Text: {plainText}\n{operation_code.title()}oded  Text: {''.join(output)}"
 
 
 '''def HillCipher():
